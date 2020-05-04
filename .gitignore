@@ -1,0 +1,9 @@
+*.alf
+.vs/
+Temp/
+Packages/
+obj/
+Logs/
+Library/
+*.meta
+*.asset
