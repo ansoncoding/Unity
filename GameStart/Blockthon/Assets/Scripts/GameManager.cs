@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using System;
 
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoSingleton<GameManager>
 {
     public Transform[] spawnPoints;
     public GameObject blockPrefabEasy;
@@ -14,7 +14,6 @@ public class GameManager : MonoBehaviour
     public GameObject[] completeLevelPanels;
     public PlayerMovement playerMovement;
 
-    private static GameManager _instance;
     private const int LEVEL1_COMPLETE = 50;
     private const int LEVEL2_COMPLETE = 200;
     private const int LEVEL3_COMPLETE = 500;
@@ -187,28 +186,8 @@ public class GameManager : MonoBehaviour
     {
         return totalPoints;
     }
-
-    public static GameManager Instance 
-    { 
-        get { 
-            if (_instance == null)
-            {
-                Debug.LogError("Game Manager is NULL!");
-                // We can do lazy instantiation here but the Spawning won't work because it needs prefabs
-            }
-            return _instance; 
-        } 
-    }
-    
-    // Awake is used to initialize any variables or game state before the game starts.
-    // Awake is called only once during the lifetime of the script _instance. 
-    // Awake is called after all objects are initialized so you can safely speak to other objects or query them using for example GameObject.FindWithTag.
-    // Each GameObject's Awake is called in a random order between objects. Because of this, you should use Awake to set up references between scripts, 
-    // and use Start to pass any information back and forth. Awake is always called before any Start functions. 
-    // This allows you to order initialization of scripts. Awake can not act as a coroutine.
-    // Note: Use Awake instead of the constructor for initialization, as the serialized state of the component is undefined at construction time. 
-    // Awake is called once, just like the constructor.
-    private void Awake()
+   
+    public override void Init ()
     {
         if (healthObservers == null)
         {
@@ -221,15 +200,6 @@ public class GameManager : MonoBehaviour
         if (levelObservers == null)
         {
             levelObservers = new List<IGameObserver>();
-        }
-
-        if (_instance != null && _instance != this)
-        {
-            Destroy(this.gameObject);
-        }
-        else
-        {
-            _instance = this;
         }
     }
 
