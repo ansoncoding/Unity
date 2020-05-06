@@ -5,18 +5,18 @@ using System;
 
 public class ObstacleMovement : MonoBehaviour
 {
-    float[] LEVELFORCES = { 3000f, 4000f, 6000f, 8000f };   
-    
     public Rigidbody rb;
     private float forwardForce = 3000f;
+    private Vector3 scale;
 
-    public void SetSpeed(int level)
+    public void SetScale(Vector3 newScale)
     {
-        if (level > 4)
-        {
-            throw new Exception("Invalid level");
-        }
-        forwardForce = LEVELFORCES[level-1];
+        scale = newScale;
+    }
+
+    public void SetSpeed(float newForwardForce)
+    {
+        forwardForce = newForwardForce;
     }
 
     // Start is called before the first frame update

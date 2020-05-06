@@ -8,9 +8,7 @@ using System;
 
 public class GameManager : MonoSingleton<GameManager>
 {
-    public Transform[] spawnPoints;
-    public GameObject blockPrefabEasy;
-    public GameObject blockPrefabHard;
+
     public GameObject[] completeLevelPanels;
     public PlayerMovement playerMovement;
 
@@ -23,13 +21,9 @@ public class GameManager : MonoSingleton<GameManager>
     private const float PLAYER_POSNX = 0f;
     private Vector3 startPosition = new Vector3(PLAYER_POSNX, PLAYER_POSNY, PLAYER_POSNZ);
 
-    private float timeToSpawn = 2f;
-
     private bool died = false;
     private float timeToWaitUser = 0.1f;
-
     private int totalPoints = 0;
-    private bool PauseSpawn = false;
     private int currentLevel = 1;
     private int lives = 3;
     
@@ -161,7 +155,7 @@ public class GameManager : MonoSingleton<GameManager>
         completeLevelPanels[currentLevel - 1].SetActive(true);
         DestroyObstacles();
         
-        PauseSpawn = true;
+        SpawnManager.Instance.PauseSpawn(true);
         while (!Input.GetKey(KeyCode.Return))
         {
             yield return new WaitForSeconds(timeToWaitUser);
@@ -169,7 +163,7 @@ public class GameManager : MonoSingleton<GameManager>
         completeLevelPanels[currentLevel - 1].SetActive(false);
         currentLevel++;
         NotifyLevelObservers();
-        PauseSpawn = false;
+        SpawnManager.Instance.PauseSpawn(false);
     }
     
     public int GetLevel()
@@ -229,79 +223,12 @@ public class GameManager : MonoSingleton<GameManager>
         }
     }
 
-    void SpawnBlocks()
-    {
-        int randomIndex = UnityEngine.Random.Range(0, spawnPoints.Length);
 
-        for (int i = 0; i < spawnPoints.Length; i++)
-        {
-            switch (currentLevel) {
-                case 1:
-                    if (randomIndex == i)
-                    {
-                        GameObject o = Instantiate(blockPrefabEasy, spawnPoints[i].position, Quaternion.identity);
-                        ObstacleMovement m = o.GetComponent<ObstacleMovement>();
-                        SetObstacleSpeed(m);
-                    }
-                    break;
-                case 2:
-                    if (randomIndex != i)
-                    {
-                        GameObject o = Instantiate(blockPrefabEasy, spawnPoints[i].position, Quaternion.identity);
-                        ObstacleMovement m = o.GetComponent<ObstacleMovement>();
-                        SetObstacleSpeed(m);
-                    }
-                    break;
-                case 3:
-                    if (randomIndex != i)
-                    {
-                        GameObject o = Instantiate(blockPrefabHard, spawnPoints[i].position, Quaternion.identity);
-                        ObstacleMovement m = o.GetComponent<ObstacleMovement>();
-                        SetObstacleSpeed(m);
-                    }
-                    break;
-                case 4:
-                    {
-                        GameObject o = Instantiate(blockPrefabHard, spawnPoints[i].position, Quaternion.identity);
-                        ObstacleMovement m = o.GetComponent<ObstacleMovement>();
-                        SetObstacleSpeed(m);
-                    }
-                    break;
-            }
-        }
-    }
-
-    void SetObstacleSpeed(ObstacleMovement m)
-    {
-        try
-        {
-            m.SetSpeed(currentLevel);
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e.ToString());
-        }
-    }
-
-    IEnumerator SpawnCoroutine()
-    {
-        while (true)
-        {
-            SpawnBlocks();
-            
-            yield return new WaitForSeconds(timeToSpawn);
-            while (PauseSpawn)
-            {
-                yield return null;
-            }
-        }
-    }
 
     void Start()
     {
         NotifyScoreObservers();
         NotifyHealthObservers();
         NotifyLevelObservers();
-        StartCoroutine(SpawnCoroutine());
     }
 }
