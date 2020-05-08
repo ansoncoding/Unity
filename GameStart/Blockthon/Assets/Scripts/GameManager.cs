@@ -20,6 +20,7 @@ public class GameManager : MonoSingleton<GameManager>
     private const float PLAYER_POSNY = 1.5f;
     private const float PLAYER_POSNX = 0f;
     private Vector3 startPosition = new Vector3(PLAYER_POSNX, PLAYER_POSNY, PLAYER_POSNZ);
+    private Quaternion startRotation = Quaternion.identity;
 
     private bool died = false;
     private float timeToWaitUser = 0.1f;
@@ -139,7 +140,6 @@ public class GameManager : MonoSingleton<GameManager>
 
     void DestroyObstacles()
     {
-        PauseSpawn = false;
         GameObject[] obstacles;
 
         obstacles = GameObject.FindGameObjectsWithTag("Obstacle");
@@ -155,7 +155,7 @@ public class GameManager : MonoSingleton<GameManager>
         completeLevelPanels[currentLevel - 1].SetActive(true);
         DestroyObstacles();
         
-        SpawnManager.Instance.PauseSpawn(true);
+        SpawnManager.Instance.SetSpawn(false);
         while (!Input.GetKey(KeyCode.Return))
         {
             yield return new WaitForSeconds(timeToWaitUser);
@@ -163,7 +163,7 @@ public class GameManager : MonoSingleton<GameManager>
         completeLevelPanels[currentLevel - 1].SetActive(false);
         currentLevel++;
         NotifyLevelObservers();
-        SpawnManager.Instance.PauseSpawn(false);
+        SpawnManager.Instance.SetSpawn(true);
     }
     
     public int GetLevel()
@@ -200,25 +200,32 @@ public class GameManager : MonoSingleton<GameManager>
     void Revive()
     {
         playerMovement.rb.position = startPosition;
+        playerMovement.rb.rotation = startRotation;
+        playerMovement.rb.AddForce(Vector3.zero);
+        playerMovement.rb.velocity = Vector3.zero;
+        playerMovement.rb.angularVelocity = Vector3.zero;
+
         died = false;
         playerMovement.enabled = true;
+        SpawnManager.Instance.SetSpawn(true);
     }
     public void EndGame()
     {
         if (!died)
         {
             died = true;
+            SpawnManager.Instance.SetSpawn(false);
             lives--;
             playerMovement.enabled = false;
             NotifyHealthObservers();
-
+            
             if (lives == 0)
             {
                 Invoke("LoadGameover", 0.5f);
             }
             else
             {
-                Invoke("Revive", 0.5f);
+                Invoke("Revive", 1f);
             }
         }
     }

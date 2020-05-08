@@ -6,17 +6,27 @@ using System;
 public class ObstacleMovement : MonoBehaviour
 {
     public Rigidbody rb;
-    private float forwardForce = 3000f;
-    private Vector3 scale;
+    private float forwardForce = 0f;
+    private bool pointsAwarded = false;
 
     public void SetScale(Vector3 newScale)
     {
-        scale = newScale;
+        gameObject.transform.localScale = newScale;
     }
 
     public void SetSpeed(float newForwardForce)
     {
+        //Debug.Log("New speed " + newForwardForce);
         forwardForce = newForwardForce;
+    }
+
+    public void SetPositionOffset(Vector3 offset)
+    {
+        Debug.Log("Old position " + gameObject.transform.position);
+        gameObject.transform.position += offset;
+        Debug.Log("New position " + gameObject.transform.position);
+        Mathf.Clamp(gameObject.transform.position.x, -7.5f, 7.5f);
+        Debug.Log("Clamped position " + gameObject.transform.position);
     }
 
     // Start is called before the first frame update
@@ -32,10 +42,14 @@ public class ObstacleMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (transform.position.z < GameManager.PLAYER_POSNZ)
+        if (!pointsAwarded && transform.position.z < GameManager.PLAYER_POSNZ)
         {
+            pointsAwarded = true;
             GameManager.Instance.IncPoints();
-            Destroy(gameObject);
+        }
+        
+        if (transform.position.z < (GameManager.PLAYER_POSNZ - 5)) { 
+                Destroy(gameObject);
         }
     }
 }
