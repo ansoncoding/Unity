@@ -22,11 +22,9 @@ public class ObstacleMovement : MonoBehaviour
 
     public void SetPositionOffset(Vector3 offset)
     {
-        Debug.Log("Old position " + gameObject.transform.position);
+        //Debug.Log("Old position " + gameObject.transform.position);
         gameObject.transform.position += offset;
-        Debug.Log("New position " + gameObject.transform.position);
-        Mathf.Clamp(gameObject.transform.position.x, -7.5f, 7.5f);
-        Debug.Log("Clamped position " + gameObject.transform.position);
+        //Debug.Log("New position " + gameObject.transform.position);
     }
 
     // Start is called before the first frame update

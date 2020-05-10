@@ -118,6 +118,8 @@ public class SpawnManager : MonoSingleton<SpawnManager>, IGameObserver
     private float timeToSpawn = 2f;
     private bool spawnEnabled = true;
     private int currentLevel;
+    public static float PATH_LEFT = -7.5f;
+    public static float PATH_RIGHT = 7.5f;
 
     float[] SPAWNTIME = { 2f, 1.75f, 1.50f, 1f };
 
@@ -147,7 +149,7 @@ public class SpawnManager : MonoSingleton<SpawnManager>, IGameObserver
                     if (randomIndex == i)
                     {
                         ObstacleMovement m = Instantiate(blockPrefab, spawnPoints[i].position, Quaternion.identity);
-                        SetObstacleFeatures(m);
+                        SetObstacleFeatures(m, spawnPoints[i].position.x);
                     }
                     break;
                 case 2:
@@ -155,13 +157,13 @@ public class SpawnManager : MonoSingleton<SpawnManager>, IGameObserver
                     if (randomIndex != i)
                     {
                         ObstacleMovement m = Instantiate(blockPrefab, spawnPoints[i].position, Quaternion.identity);
-                        SetObstacleFeatures(m);
+                        SetObstacleFeatures(m, spawnPoints[i].position.x);
                     }
                     break;
                 case 4:
                     {
                         ObstacleMovement m = Instantiate(blockPrefab, spawnPoints[i].position, Quaternion.identity);
-                        SetObstacleFeatures(m);
+                        SetObstacleFeatures(m, spawnPoints[i].position.x);
                     }
                     break;
             }
@@ -177,7 +179,7 @@ public class SpawnManager : MonoSingleton<SpawnManager>, IGameObserver
         }
     }
 
-    private void SetObstacleFeatures(ObstacleMovement m)
+    private void SetObstacleFeatures(ObstacleMovement m, float currentXPosition)
     {
         LevelSettings s = levelSpecs.Get(currentLevel);
 
@@ -185,16 +187,20 @@ public class SpawnManager : MonoSingleton<SpawnManager>, IGameObserver
         float speed = Random.Range(s.minForce, s.maxForce);
         m.SetSpeed(speed);
 
-        // Position 
-        float offsetX = Random.Range(s.offsetXMin, s.offsetXMax);
-        float offsetZ = Random.Range(s.offsetZMin, s.offsetZMax);
-        Vector3 offset = new Vector3(offsetX, 0f, offsetZ);
-        m.SetPositionOffset(offset);
-
         // Scale
         float width = Random.Range(s.minObstacleWidth, s.maxObstacleWidth);
         float height = Random.Range(s.minObstacleHeight, s.maxObstacleHeight);
         m.SetScale(new Vector3(width, height, 1f));
+
+        // Position 
+        float offsetX = Random.Range(s.offsetXMin, s.offsetXMax);
+        float offsetZ = Random.Range(s.offsetZMin, s.offsetZMax);
+        float halfWidth = width / 2;
+        float leftMargin = Mathf.Min(0, PATH_LEFT - (currentXPosition - halfWidth));
+        float rightMargin = Mathf.Max(0, PATH_RIGHT - (currentXPosition + halfWidth));
+        offsetX = Mathf.Clamp(offsetX, leftMargin, rightMargin);
+        Vector3 offset = new Vector3(offsetX, 0f, offsetZ);
+        m.SetPositionOffset(offset);
 
         // Color
         Color color = s.color;

@@ -10,6 +10,7 @@ public class GameManager : MonoSingleton<GameManager>
 {
 
     public GameObject[] completeLevelPanels;
+    public GameObject damagePanel;
     public PlayerMovement playerMovement;
 
     private const int LEVEL1_COMPLETE = 50;
@@ -199,6 +200,7 @@ public class GameManager : MonoSingleton<GameManager>
 
     void Revive()
     {
+        damagePanel.SetActive(false);
         playerMovement.rb.position = startPosition;
         playerMovement.rb.rotation = startRotation;
         playerMovement.rb.AddForce(Vector3.zero);
@@ -216,6 +218,7 @@ public class GameManager : MonoSingleton<GameManager>
             died = true;
             SpawnManager.Instance.SetSpawn(false);
             lives--;
+            damagePanel.SetActive(true);
             playerMovement.enabled = false;
             NotifyHealthObservers();
             

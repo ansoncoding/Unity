@@ -6,17 +6,18 @@ public class PlayerMovement : MonoBehaviour, IGameObserver
 {
     // Start is called before the first frame update
     public Rigidbody rb;
-    
-    float sidewaysForce = 100f;
-    float jumpForce = 800f;
-    float maxHeight = 2f;
+    private float leftBoundary;
+    private float rightBoundary;
+    private float sidewaysForce = 100f;
+    private float jumpForce = 800f;
+    private float maxHeight = 2f;
 
-    bool moveRight = false;
-    bool moveLeft = false;
-    bool jump = false;
-    bool fired = false;
-    bool canJump = false;
-    bool canFire = false;
+    private bool moveRight = false;
+    private bool moveLeft = false;
+    private bool jump = false;
+    private bool fired = false;
+    private bool canJump = false;
+    private bool canFire = false;
 
     public void CanFire()
     {
@@ -30,11 +31,11 @@ public class PlayerMovement : MonoBehaviour, IGameObserver
     public void Notify()
     {
         int level = GameManager.Instance.GetLevel();
-        if (level == 2)
+        if (level == 3)
         {
             CanJump();
         }
-        else if (level == 3)
+        else if (level == 4)
         {
             CanFire();
         }
@@ -63,9 +64,9 @@ public class PlayerMovement : MonoBehaviour, IGameObserver
             fired = true;
         }
 
-        if (rb.position.y < -1)
+        if (rb.position.y < -1 || rb.position.x < leftBoundary || rb.position.x > rightBoundary)
         {
-            FindObjectOfType<GameManager>().EndGame();
+            GameManager.Instance.EndGame();
         }
     }
 
@@ -113,6 +114,8 @@ public class PlayerMovement : MonoBehaviour, IGameObserver
 
     void Start()
     {
+        leftBoundary = SpawnManager.PATH_LEFT - 0.5f;
+        rightBoundary = SpawnManager.PATH_RIGHT + 0.5f;
         GameManager.Instance.AddLevelObserver(this);
     }
 }
